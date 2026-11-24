@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("postgresql://neondb_owner:npg_VTqXLQYJ98xt@ep-long-bonus-b691rsgy-pooler.c-2.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
+}
+
+enum Category {
+  ACOUGUE
+  HORTIFRUTI
+  DESPENSA
+  FRIOS
+}
+
+model Ingredient {
+  id         String             @id @default(cuid())
+  name       String
+  unit       String             // ex.: "g", "ml", "un"
+  category   Category           @default(DESPENSA)
+  recipes    RecipeIngredient[]
+  shopping   ShoppingItem[]
+  createdAt  DateTime           @default(now())
+}
+
+model Recipe {
+  id          String             @id @default(cuid())
+  name        String
+  notes       String?
+  ingredients RecipeIngredient[]
+  planItems   MealPlanItem[]
+  createdAt   DateTime           @default(now())
+}
+
+model RecipeIngredient {
+  id                 String     @id @default(cuid())
+  recipeId           String
+  ingredientId       String
+  quantityPerPortion Float      // ex.: 150 (gramas por porção)
+
+  recipe             Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient         Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+}
+
+model MealPlan {
+  id        String         @id @default(cuid())
+  title     String         // ex.: "Marmitas da Semana"
+  items     MealPlanItem[]
+  shopping  ShoppingItem[]
+  createdAt DateTime       @default(now())
+}
+
+model MealPlanItem {
+  id         String   @id @default(cuid())
+  mealPlanId String
+  recipeId   String
+  portions   Int      // quantas marmitas dessa receita
+
+  mealPlan   MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+  recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+}
+
+model ShoppingItem {
+  id            String     @id @default(cuid())
+  mealPlanId    String
+  ingredientId  String
+  totalQuantity Float      // soma total calculada
+  checked       Boolean    @default(false)
+
+  mealPlan      MealPlan   @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+  ingredient    Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+}
