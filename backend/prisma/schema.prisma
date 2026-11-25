@@ -11,16 +11,17 @@ enum Category {
   HORTIFRUTI
   DESPENSA
   FRIOS
+  OUTROS
 }
 
 model Ingredient {
-  id         String             @id @default(cuid())
-  name       String
-  unit       String             // ex.: "g", "ml", "un"
-  category   Category           @default(DESPENSA)
-  recipes    RecipeIngredient[]
-  shopping   ShoppingItem[]
-  createdAt  DateTime           @default(now())
+  id        String             @id @default(cuid())
+  name      String             @unique
+  unit      String             // ex.: "g", "ml", "un"
+  category  Category           @default(DESPENSA)
+  recipes   RecipeIngredient[]
+  shopping  ShoppingItem[]
+  createdAt DateTime           @default(now())
 }
 
 model Recipe {
@@ -40,6 +41,8 @@ model RecipeIngredient {
 
   recipe             Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   ingredient         Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@unique([recipeId, ingredientId])
 }
 
 model MealPlan {
@@ -58,6 +61,8 @@ model MealPlanItem {
 
   mealPlan   MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
   recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@unique([mealPlanId, recipeId])
 }
 
 model ShoppingItem {
@@ -69,4 +74,6 @@ model ShoppingItem {
 
   mealPlan      MealPlan   @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
   ingredient    Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@unique([mealPlanId, ingredientId])
 }
