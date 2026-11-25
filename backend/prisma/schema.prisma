@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("postgresql://neondb_owner:npg_VTqXLQYJ98xt@ep-long-bonus-b691rsgy-pooler.c-2.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
 }
 
 enum Category {
